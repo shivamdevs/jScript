@@ -1,5 +1,4 @@
 var Is = {
-  // Get instance by  ::  variable.constructor.name
   array : function( context ) {
     return typeof context === 'object' && context instanceof Array;
   },
