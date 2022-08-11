@@ -1,6 +1,6 @@
 
 // Projset :: jScript
-// Cersion :: 4.0.0 - MIT License
+// Version :: 4.0.0 - MIT License
 
 // Alpha version
 
@@ -8,6 +8,9 @@
     name = name || '$';
 
     const debugMode = true;// Shows error by throwing on console :: For development only
+    const debug = function( args ) {
+        return console.trace( args );
+    };
 
     // repetitive functions
     const Is = {
@@ -58,7 +61,7 @@
 
         if ( Is.string( selector ) ) {
             if ( Is.jScript( context ) ) {
-                let match = [];
+                const match = [];
                 context.toArray().forEach(( item ) => {
                     item.querySelectorAll( selector ).forEach(( query ) => {
                         match.push( query );
@@ -112,11 +115,11 @@
     // Convert a string of css query-selector into array of :: element|class~classlist|id|attributes
     Js.cssQuery = function( context ) {
         if ( Is.string( context ) ) {
-            let found = [];
-            let foundElement = [];
-            let foundElementID = [];
-            let foundElementClass = [];
-            let foundElementAttribute = [];
+            const found = [];
+            const foundElement = [];
+            const foundElementID = [];
+            const foundElementClass = [];
+            const foundElementAttribute = [];
             found.id = '';
             found.attr = {};
             found.list = [];
@@ -130,7 +133,7 @@
                 if( !section || !section.length ) return;
                 section = section[ 0 ];
 
-                let query = section.includes( '=' ) ? section.substring( 0 , section.indexOf( '=' ) ) : section;
+                const query = section.includes( '=' ) ? section.substring( 0 , section.indexOf( '=' ) ) : section;
 
                 if ( query && query.length ) {
                     value = section.includes( '=' ) ? section.substring( section.indexOf( '=' ) + 1 ) : '';
@@ -145,7 +148,7 @@
                 if ( query.match( /[^A-Za-z0-9\.\#\-\_]/g ) ) return;
                 if ( query.charAt() === '.' ) {
                     foundElementClass.push( query );
-                let string = query.substring( 1 );
+                const string = query.substring( 1 );
                     found.list.push( string );
                     found.class += string + ' ';
                 } else if ( query.charAt() === '#' ) {
@@ -168,6 +171,7 @@
 
 
     // DOM ready manipulator
+    // Source :: https://github.com/jfriend00/docReady
     Js.ready = (function() {
         const readyList = [];
         let readyFired = false;
@@ -175,23 +179,21 @@
         function ready() {
             if ( !readyFired ) {
                 readyFired = true;
-                for (let i = 0; i < readyList.length; i++) {
+                for (let i = 0; i < readyList.length; i++)
                     readyList[i].fn.call( window , readyList[i]. ctx );
-                }
                 readyList = [];
             }
         };
         function readyStateChange() {
-            if ( document.readyState === 'complete' ) {
+            if ( document.readyState === 'complete' )
                 ready();
-            }
         }
         return function( callback , context ) {
             if ( !Is.function( callback ) ) {
-                Js.debug( 'callback is not a function.' );
+                return Js.debug( 'callback is not a function.' );
             }
             if ( readyFired ) {
-                return callback.call( window , context );
+                return setTimeout(() => { callback.call( window , context );  , 1 });
             } else {
                 readyList.push({
                     fn: callback,
@@ -199,7 +201,7 @@
                 });
             }
             if ( document.readyState === 'complete' || ( !document.attachEvent && document.readyState === 'interactive' ) ) {
-                ready();
+                setTimeout( ready , 1 );
             } else if ( !readyEventHandlersInstalled ) {
                 if ( document.addEventListener ) {
                     document.addEventListener( 'DOMContentLoaded' , ready , false );
@@ -212,6 +214,43 @@
             }
         };
     }());
+
+
+
+
+
+
+
+    // Add DOM element methods using addPrototype
+
+    Js.addPrototype( jScript , {
+        ...{// Iterators
+            each: function( callback ) {
+                if ( !Is.function( callback ) ) return this;
+                for (let i = 0; i < this.length; i++)
+                    callback.call( this[i] , Js( this[i] ) , i , this[i] );
+                return this;
+            },
+            reverse : function() {
+                const result = Js();
+                for (let i = this.length - 1; i >= 0; i--)
+                    result.add( this[i] );
+                return result;
+            },
+            then : function( callback ) {
+                const result;
+                if ( Is.function( callback ) ) result = callback.call( this , this );
+                return ( result !== undefined ) ? result : this;
+            },
+            toArray : function() {
+                const result = [];
+                this.each(function() {
+                    result.push( this );
+                });
+                return result;
+            },
+        },
+    });
 
 
 
