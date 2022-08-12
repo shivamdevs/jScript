@@ -257,9 +257,9 @@
         },
         ...{// Modifiers
             add : function( ...selector ) {
-                var root = this;
+                const root = this;
                 if ( selector.length ) {
-                    for (var i = 0; i < selector.length; i++) {
+                    for (let i = 0; i < selector.length; i++) {
                         Js( selector[ i ] ).each(function() {
                             root[ ( root.length ) ] = this;
                             root.length++;
@@ -270,9 +270,9 @@
             },
             not : function( selector ) {
                 selector = Js( selector );
-                var result = Js();
+                const result = Js();
                 this.each(function() {
-                    var match = this;
+                    const match = this;
                     selector.each(function() {
                         if ( match !== this ) result.add( match );
                     });
@@ -295,7 +295,7 @@
             },
             attr : function( context , value ) {
                 if ( Is.object( context ) ) {
-                    for ( var key in context ) {
+                    for ( let key in context ) {
                         if ( context[ key ] !== undefined ) {
                             this.each(function() {
                                 this.setAttribute( key , context[ key ] );
@@ -315,7 +315,7 @@
             },
             css : function( context , value ) {
                 if ( Is.object( context ) ) {
-                    for ( var key in context ) {
+                    for ( let key in context ) {
                         if ( context[ key ] ) {
                             this.each(function() {
                                 this.style.setProperty( key , context[ key ] );
@@ -339,7 +339,7 @@
                         }
                     } else {
                         if ( this[ 0 ] ) {
-                            var result = window.getComputedStyle( this[ 0 ] ).getPropertyValue( context );
+                            const result = window.getComputedStyle( this[ 0 ] ).getPropertyValue( context );
                             return parseFloat( result ) || result;
                         }
                         return undefined;
@@ -349,7 +349,7 @@
             },
             data : function( context , value ) {
                 if ( Is.object( context ) ) {
-                    for ( var key in context ) {
+                    for ( let key in context ) {
                         if ( context[ key ] !== undefined ) {
                             this.each(function() {
                                 this.dataset[ key ] = context[ key ];
@@ -369,7 +369,7 @@
             },
             proto : function( context , value ) {
                 if ( Is.object( context ) ) {
-                    for ( var key in context ) {
+                    for ( let key in context ) {
                         if ( context[ key ] || context[ key ] === '' ) {
                             this.each(function() {
                                 this[ key ] = context[ key ];
@@ -508,7 +508,7 @@
                 }
                 if ( !Is.function( callback ) ) callback = function() {};
                 this.each(function( item ) {
-                    var prestyle = 'block';
+                    let prestyle = 'block';
                     if ( this.style.display === 'none' ) {
                         this.style.opacity = '0';
                         this.style.display = '';
@@ -519,8 +519,8 @@
                     }
                     if ( Is.number( timeout ) ) {
                         this.style.display = prestyle;
-                        var last = +new Date();
-                        var tick = () => {
+                        let last = +new Date();
+                        const tick = () => {
                             this.style.opacity = +this.style.opacity + ( new Date() - last ) / timeout;
                             last = +new Date();
                             if ( +this.style.opacity < 1 ) {
@@ -549,8 +549,8 @@
                     this.style.opacity = '1';
                     this.style.display = '';
                     if ( Is.number( timeout ) ) {
-                        var last = +new Date();
-                        var tick = () => {
+                        let last = +new Date();
+                        const tick = () => {
                             this.style.opacity = +this.style.opacity - ( new Date() - last ) / timeout;
                             last = +new Date();
                             if ( +this.style.opacity > 0 ) {
@@ -580,12 +580,11 @@
             },
         },
         ...{// Children Modifiers
-
             after : function( ...nodes ) {
                 nodes.forEach(( node ) => {
                     this.each(function() {
                         if ( Is.jScript( node ) || Is.jQuery( node ) ) {
-                            var temp = this;
+                            const temp = this;
                             node.each(function() {
                                 temp.parentNode.insertBefore( this , temp.nextSibling );
                             });
@@ -597,11 +596,11 @@
                 return this;
             },
             append : function( ...nodes ) {
-                var root = this;
+                const root = this;
                 nodes.forEach(( node ) => {
                     this.each(function() {
                         if ( Is.jScript( node ) || Is.jQuery( node ) ) {
-                            var temp = this;
+                            const temp = this;
                             node.each(function() {
                                 temp.appendChild( this );
                             });
@@ -626,7 +625,7 @@
                 nodes.forEach(( node ) => {
                     this.each(function() {
                         if ( Is.jScript( node ) || Is.jQuery( node ) ) {
-                            var temp = this;
+                            const temp = this;
                             node.each(function() {
                                 temp.parentNode.insertBefore( this , temp );
                             });
@@ -655,7 +654,7 @@
                 nodes.forEach(( node ) => {
                     this.each(function() {
                         if ( Is.jScript( node ) || Is.jQuery( node ) ) {
-                            var temp = this;
+                            const temp = this;
                             node.each(function() {
                                 temp.prepend( this );
                             });
@@ -682,23 +681,23 @@
         },
         ...{// Contains or Has data
             containAttr : function( attribute ) {
-                var result = Js();
-                for (var i = 0; i < this.length; i++) if ( this[ i ].hasAttribute( attribute ) ) result.add( this[ i ] );
+                const result = Js();
+                for (let i = 0; i < this.length; i++) if ( this[ i ].hasAttribute( attribute ) ) result.add( this[ i ] );
                 return result;
             },
             containClass : function( classes ) {
-                var result = Js();
-                for (var i = 0; i < this.length; i++) if ( this[ i ].classList.contains( classes ) ) result.add( this[ i ] );
+                const result = Js();
+                for (let i = 0; i < this.length; i++) if ( this[ i ].classList.contains( classes ) ) result.add( this[ i ] );
                 return result;
             },
             containData : function( data ) {
-                var result = Js();
-                for (var i = 0; i < this.length; i++) if ( this[ i ].dataset[ data ] ) result.add( this[ i ] );
+                const result = Js();
+                for (let i = 0; i < this.length; i++) if ( this[ i ].dataset[ data ] ) result.add( this[ i ] );
                 return result;
             },
             containProto : function( prototype ) {
-                var result = Js();
-                for (var i = 0; i < this.length; i++) if ( this[ i ][ prototype ] ) result.add( this[ i ] );
+                const result = Js();
+                for (let i = 0; i < this.length; i++) if ( this[ i ][ prototype ] ) result.add( this[ i ] );
                 return result;
             },
             contained : function( index = 0 ) {
@@ -751,7 +750,7 @@
             },
             position : function( withMargin = false ) {
                 if ( !this.length ) return undefined;
-                var top = this[ 0 ].offsetTop , left = this[ 0 ].offsetLeft;
+                let top = this[ 0 ].offsetTop , left = this[ 0 ].offsetLeft;
                 if ( !withMargin ) {
                     top -= parseFloat( this.eq( 0 ).css( 'margin-top' ) ) || 0;
                     left -= parseFloat( this.eq( 0 ).css( 'margin-left' ) ) || 0;
@@ -797,7 +796,7 @@
         },
         ...{// Return elemments
             children : function( context ) {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
                     if ( context === undefined ) {
                         result.add( this.children );
@@ -810,20 +809,20 @@
                 return result;
             },
             clone : function() {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
                     result.add( this.cloneNode( true ) );
                 });
                 return result;
             },
             closest : function( selector ) {
-                var result = Js() , selector = Js( selector ) , found = false;
+                const result = Js() , selector = Js( selector ) , found = false;
                 outerloop:
-                for ( var i = 0; i < this.length; i++ ) {
-                    var select = this[ i ];
+                for ( let i = 0; i < this.length; i++ ) {
+                    let select = this[ i ];
                     while ( select && !found ) {
                         innerloop:
-                        for (var j = 0; j < selector.length; j++) {
+                        for (let j = 0; j < selector.length; j++) {
                             if ( select === selector[ j ] ) {
                                 result.add( selector[ j ] );
                                 found = true;
@@ -837,7 +836,7 @@
                 return result;
             },
             content : function() {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
                     result.add( this.content.cloneNode( true ) );
                 });
@@ -848,7 +847,7 @@
                 return Js( this [ index ] );
             },
             find : function( selector ) {
-                var result = Js();
+                const result = Js();
                 if ( Is.string( selector ) ) {
                     this.each(function() {
                         result.add( this.querySelectorAll( selector ) );
@@ -868,16 +867,16 @@
             },
             index : function( context ) {
                 if ( context ) return this.indexOf( context );
-                var index = -1;
+                let index = -1;
                 if ( this.length ) {
-                    var element = this[ 0 ];
+                    let element = this[ 0 ];
                     index = 0;
                     while ( element = element.previousElementSibling ) index++;
                 }
                 return index;
             },
             indexOf : function( context ) {
-                var index = -1;
+                let index = -1;
                 context = Js( context );
                 if ( this.length && context.length ) {
                     this.each(function( item , i ) {
@@ -891,7 +890,7 @@
                 if ( selector === Js ) return true;
                 if ( selector === this ) return true;
                 selector = Js( selector );
-                if ( this.length ) for (var i = 0; i < selector.length; i++) if ( selector[ i ] === this[ index ] ) return true;
+                if ( this.length ) for (let i = 0; i < selector.length; i++) if ( selector[ i ] === this[ index ] ) return true;
                 return false;
             },
             last : function() {
@@ -901,29 +900,29 @@
                 return this.children().last();
             },
             match : function() {
-                var result = Js();
+                const result = Js();
                 this.each(function( item ) {
                     if ( item.is( item ) ) result.add( this );
                 });
                 return result;
             },
             next : function( element ) {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
-                    var next = element ? this.nextElementSibling : this.nextSibling;
+                    const next = element ? this.nextElementSibling : this.nextSibling;
                     if ( next ) result.add( next );
                 });
                 return result;
             },
             parent : function( context ) {
-                var result = Js();
+                const result = Js();
                 context = Js( context );
                 if ( this.length ) {
                     if ( context.length ) {
                         outerloop:
-                        for (var i = 0; i < this.length; i++) {
+                        for (let i = 0; i < this.length; i++) {
                             innerloop:
-                            for (var j = 0; j < context.length; j++) {
+                            for (let j = 0; j < context.length; j++) {
                                 if ( this[ i ].parentNode === context[ j ] ) {
                                     result.add( context[ j ] );
                                     return result;
@@ -937,15 +936,15 @@
                 return result;
             },
             prev : function( element ) {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
-                    var prev = element ? this.previousElementSibling : this.previousSibling;
+                    const prev = element ? this.previousElementSibling : this.previousSibling;
                     if ( prev ) result.add( prev );
                 });
                 return result;
             },
             shadow : function() {
-                var result = Js();
+                const result = Js();
                 this.each(function() {
                     result.add( this.shadowRoot || this.attachShadow({ mode : 'open' }) );
                 });
@@ -1037,7 +1036,7 @@
                     if ( Is.function( mouseout ) ) this.bind( 'mouseout' , mouseout );
                 } else {
                     this.each(function() {
-                        //this.hover();
+                        this.event( 'mouseover' );
                     });
                 }
                 return this;
@@ -1165,7 +1164,7 @@
             },
             removeOverflow : function() {
                 this.each(function() {
-                    var array = Js.arrObj.objInArr( Js.overflowObserver , 'element' , this );
+                    const array = Js.arrObj.objInArr( Js.overflowObserver , 'element' , this );
                     if ( Is.object( array ) ) Js.overflowObserver.splice( array.index , 1 );
                 });
                 return this;
