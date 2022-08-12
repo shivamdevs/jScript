@@ -9,7 +9,7 @@
 
     const debugMode = true;// Shows error by throwing on console :: For development only
     const debug = function( args ) {
-        return console.trace( args );
+        return debugMode && console.trace( args );
     };
 
     // repetitive functions
@@ -227,7 +227,6 @@
 
 
     // Add DOM element methods using addPrototype
-
     Js.addPrototype( jScript , {
         ...{// Iterators
             each: function( callback ) {
@@ -1213,8 +1212,26 @@
         },
     });
 
+    // Add custom functions to jScript function
+    Js.addExtension( Js , {
+
+    });
 
 
+    // Add basic events for document structure
+    (function() {
+        const struct = function() {
+            if ( Is.mobile() ) Js( 'html' ).addClass( 'mobile-device' ); else Js( 'html' ).removeClass( 'mobile-device' );
+            if ( window.innerWidth <= 425 ) Js( 'html' ).addClass( 'mobile-device-ratio' ); else Js( 'html' ).removeClass( 'mobile-device-ratio' );
+            Js( 'html' ).css( '--vh' , `${window.innerHeight * 0.01}px` );
+        };
+        struct();
+        Js( window ).bind( 'resize' ,struct );
+    }());
+
+
+    // Set caller for new prototypes
+    Js.fn = jScript.prototype;
 
 
 
