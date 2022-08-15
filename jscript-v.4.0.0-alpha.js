@@ -1,6 +1,6 @@
-
 // Projset :: jScript
 // Version :: 4.0.0 - MIT License
+// Info Aplha :: Log all important data from previous version
 
 // Alpha version
 
@@ -112,64 +112,6 @@
         }
     };
 
-    // Convert a string of css query-selector into array of :: element|class~classlist|id|attributes
-    Js.cssQuery = function( context ) {
-        if ( Is.string( context ) ) {
-            const found = [];
-            const foundElement = [];
-            const foundElementID = [];
-            const foundElementClass = [];
-            const foundElementAttribute = [];
-            found.id = '';
-            found.attr = {};
-            found.list = [];
-            found.class = '';
-            found.element = 'div';
-
-            ( context.match( /\[[^\]]*\]/g ) || [] ).forEach(( attr ) => {
-                context = context.replace( attr , '' );
-                foundElementAttribute.push( attr );
-                let section = attr.match( /(?<=\[).+?(?=\])/g );
-                if( !section || !section.length ) return;
-                section = section[ 0 ];
-
-                const query = section.includes( '=' ) ? section.substring( 0 , section.indexOf( '=' ) ) : section;
-
-                if ( query && query.length ) {
-                    value = section.includes( '=' ) ? section.substring( section.indexOf( '=' ) + 1 ) : '';
-                    value = !value ? [] : value.length > 1 ? value.match( /\(?[^\'\"\`]+[^\'\"\`]\)?/g ) || [] : [ value ];
-                    value = ( value && value.length ) ? value[ 0 ] : '';
-                    found.attr[ query ] = value;
-                }
-            });
-
-            ( context.match( /\(?.[^\.\#]+[^\.\#]\)?/g ) || [] ).forEach(( query , i ) => {
-                context = context.replace( query , '' );
-                if ( query.match( /[^A-Za-z0-9\.\#\-\_]/g ) ) return;
-                if ( query.charAt() === '.' ) {
-                    foundElementClass.push( query );
-                    const string = query.substring( 1 );
-                    found.list.push( string );
-                    found.class += string + ' ';
-                } else if ( query.charAt() === '#' ) {
-                    foundElementID.push( query );
-                    found.id = query.substring( 1 );
-                } else if ( !i ) {
-                    foundElement.push( query );
-                    found.element = query;
-                }
-            });
-            if ( context && context.length ) {
-                foundElement.push( context );
-                found.element = context;
-            }
-            Array.prototype.push.apply( found , [ ...foundElement , ...foundElementID , ...foundElementClass , ...foundElementAttribute ] );
-            return found.length ? found : null;
-        }
-        return null;
-    };
-
-
     // DOM ready manipulator
     // Source :: https://github.com/jfriend00/docReady
     Js.ready = (function() {
@@ -214,14 +156,6 @@
             }
         };
     }());
-
-    // Timeout based on scheduler rather than setTimeout
-    Js.timeout = function( callback , delay ) {
-        callback = Is.function( callback ) ? callback : function() {};
-        if ( !Is.number( delay ) ) delay = 0;
-        if ( window.scheduler ) scheduler.postTask( callback , { delay : delay } ); else return window.setTimeout( callback , delay );
-    };
-
 
 
 
@@ -1213,6 +1147,9 @@
 
     // Add custom functions to jScript function
     Js.addExtension( Js , {
+        addslashes : function( string ) {
+            return String( string ).replace(/([\\"'/[/(/)])/g, "\\$1").replace(/\0/g, "\\0");
+        },
         array : {
             compare : function( arr1 , arr2 ) {
                 if ( !Array.isArray( arr1 ) || !Array.isArray( arr2 ) || arr1.length !== arr2.length ) return false;
@@ -1240,17 +1177,159 @@
             if ( !match.length ) return Js.ce( selector ).appendTo( appendTo );
             return match;
         },
+        cssQuery: function( context ) {
+            if ( Is.string( context ) ) {
+                const found = [];
+                const foundElement = [];
+                const foundElementID = [];
+                const foundElementClass = [];
+                const foundElementAttribute = [];
+                found.id = '';
+                found.attr = {};
+                found.list = [];
+                found.class = '';
+                found.element = 'div';
+
+                ( context.match( /\[[^\]]*\]/g ) || [] ).forEach(( attr ) => {
+                    context = context.replace( attr , '' );
+                    foundElementAttribute.push( attr );
+                    let section = attr.match( /(?<=\[).+?(?=\])/g );
+                    if( !section || !section.length ) return;
+                    section = section[ 0 ];
+
+                    const query = section.includes( '=' ) ? section.substring( 0 , section.indexOf( '=' ) ) : section;
+
+                    if ( query && query.length ) {
+                        value = section.includes( '=' ) ? section.substring( section.indexOf( '=' ) + 1 ) : '';
+                        value = !value ? [] : value.length > 1 ? value.match( /\(?[^\'\"\`]+[^\'\"\`]\)?/g ) || [] : [ value ];
+                        value = ( value && value.length ) ? value[ 0 ] : '';
+                        found.attr[ query ] = value;
+                    }
+                });
+
+                ( context.match( /\(?.[^\.\#]+[^\.\#]\)?/g ) || [] ).forEach(( query , i ) => {
+                    context = context.replace( query , '' );
+                    if ( query.match( /[^A-Za-z0-9\.\#\-\_]/g ) ) return;
+                    if ( query.charAt() === '.' ) {
+                        foundElementClass.push( query );
+                        const string = query.substring( 1 );
+                        found.list.push( string );
+                        found.class += string + ' ';
+                    } else if ( query.charAt() === '#' ) {
+                        foundElementID.push( query );
+                        found.id = query.substring( 1 );
+                    } else if ( !i ) {
+                        foundElement.push( query );
+                        found.element = query;
+                    }
+                });
+                if ( context && context.length ) {
+                    foundElement.push( context );
+                    found.element = context;
+                }
+                Array.prototype.push.apply( found , [ ...foundElement , ...foundElementID , ...foundElementClass , ...foundElementAttribute ] );
+                return found.length ? found : null;
+            }
+            return null;
+        },
+        cssStyle: {
+            style: function( css ) {
+                if ( Is.function( css ) ) css = css();
+                var result = '';
+                var modify = function( object ) {
+                    if ( Is.object( object ) ) {
+                        for ( var key in object ) {
+                            var value = object[ key ];
+                            if ( Is.object ( value ) ) {
+                                result += key + '{';
+                                modify( value );
+                                result += '}\n';
+                            } else {
+                                if ( Is.function( value ) ) value = value();
+                                value = String( value );
+                                if ( Is.string( value ) ) result += Js.textcase.camelToSnake( key ) + ' : ' + value + '; ';
+                            }
+                        }
+                    }
+                }
+                if ( Is.array( css ) ) {
+                    css.forEach(( item ) => {
+                        if ( Is.object( item ) ) {
+                            modify( item );
+                        } else if ( Is.string( item ) ) {
+                            result += item;
+                        }
+                    });
+                } else if ( Is.object( css ) ) {
+                    modify( css );
+                } else if ( Is.string( css ) ) {
+                    result += css;
+                }
+                if ( window.csso ) result = window.csso.minify( result ).css;
+                return result;
+            },
+            block: function( css ) {
+                if ( Is.function( css ) ) css = css();
+                var result = '';
+                if ( Is.object( css ) ) {
+                    for (var key in css) result += key + ': ' + css[ key ] + '; ';
+                } else if ( Is.string( css ) ) {
+                    result = css;
+                }
+                if ( window.csso ) result = window.csso.minifyBlock( result ).css;
+                return result;
+            },
+            toObject: function( css ) {
+                var object = {};
+                css = css.replace(/\n/g , '').replaceAll(' ' , '');
+                css.split( ';' ).forEach(( declare ) => {
+                    if ( declare ) {
+                        var split = declare.split( ':' );
+                        if ( split.length ) object[ Js.textcase.snakeToCamel( split[ 0 ] ) ] = split[ 1 ];
+                    }
+                });
+                return object;
+            }
+        },
+        decode: {
+            entities : function( str ) {
+                var element = document.createElement('div');
+                if(str && typeof str === 'string') {
+                    str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
+                    str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
+                    element.innerHTML = str;
+                    str = element.textContent;
+                    element.textContent = '';
+                }
+                return str;
+            },
+        },
+        getScript: function( source , callback ) {
+            if ( !source ) throw new Error( 'No source argument was passed.' );
+            callback = Is.function( callback ) ? callback : function() {};
+            var script = Js.ce( 'script[jScript]' ).load( callback ).src( source );
+            Js( 'head > script' ).eq().after( script );
+            return script;
+        },
+        measures: {
+            vpTopx : function( value ) {
+                var parts = value.match( /([0-9\.]+)(vh|vw)/ ) || [ 1 , 'vw' ];
+                var q = Number( parts[ 1 ] ) || 1;
+                var side = window[ [ 'innerHeight' , 'innerWidth' ][ [ 'vh' , 'vw' ].indexOf( parts[ 2 ] ) ] || 'vw' ];
+                return side * ( q / 100 );
+            },
+        },
         object : {
             formData : function( data , value ) {
                 const result = {};
                 if ( Is.object( data ) ) {
-                  for (let key in data) {
-                    if (data.hasOwnProperty(key)) {
-                      result[ key ] = data[ key ] ?? null;
+                    for (let key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            result[ key ] = data[ key ] ?? null;
+                        }
                     }
-                  }
                 } else if ( Is.string( data ) ) {
-                  result[ data ] = value ?? null;
+                    result[ data ] = value ?? null;
                 }
                 return result;
             },
@@ -1258,6 +1337,85 @@
                 for (let i = 0; i < array.length; i++) if ( array[ i ][ key ] === value ) return { item : array[ i ] , index : i };
                 return null;
             },
+        },
+        random: {
+            string : function( string , length = 32 ) {
+                if ( !string ) string = '0123456789abcdefghijklmnopqrstuvwxyz'; else string = String( string );
+                if ( !parseInt( length ) ) length = 32;
+                var result = '';
+                for (var i = 0; i < length; i++) result += string.charAt( Math.floor( Math.random() * string.length ) );
+                return result;
+            },
+            number : function( min , max ) {
+                const argc = arguments.length;
+                if ( argc === 0 ) {
+                    min = 0;
+                    max = 10;
+                } else if ( argc === 1 ) {
+                    max = parseInt( min ) || 10;
+                    min = 0;
+                } else {
+                    min = parseInt( min ) || 10;
+                    max = parseInt( max ) || 10;
+                }
+                return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+            },
+            numberString : function( length = 1 ) {
+                return Js.random.string( '1234567890' , length || 1 );
+            },
+        },
+        serialize: function( object ) {
+            var result = '';
+            if ( Is.object( object ) ) {
+                for ( var variable in object ) {
+                    result += variable + '=' + object[ variable ] + '&';
+                }
+                result = result.slice( 0 , -1 );
+            }
+            return result;
+        },
+        styleSheet: function( data , appendTo , query , blob ) {
+            var html = Js.cssStyle( data );
+            if ( blob ) {
+                return Js.ce( 'link' + ( query ?? '' ) ).attr({
+                    jScript : '',
+                    rel : 'stylesheet',
+                    href : window.URL.createObjectURL( new Blob( [ html ] , { type : 'text/css' } ) ),
+                }).appendTo( appendTo ?? 'head' );
+            }
+            return Js.ce( 'style' + ( query ?? '' ) , html ).attr({
+                jScript : '',
+                media : 'screen',
+            }).appendTo( appendTo ?? 'head' );
+        },
+        textcase: {
+            camelToSnake : function( string , replace = '-' ) {
+                if ( Is.string( string ) ) {
+                    if ( ![ '-' , '_' ].includes( replace ) ) replace = '-';
+                    string = string.replace(/[A-Z]/g, letter => `${ replace + letter.toLowerCase() }`);
+                }
+                return string;
+            },
+            snakeToCamel : function( string ) {
+                if ( Is.string( string ) ) string = string.toLowerCase().replace(/([-_][a-z])/g, group => group.toUpperCase().replace( '-' , '' ).replace( '_' , '' ));
+                return string;
+            },
+            textToSnake : function( string ) {
+                if ( Is.string( string ) ) {
+                    return string.toLowerCase().replaceAll( ' ' , '-' ).replace( /[^a-z0-9\-\_]/gi , '' ).replace( /—+/g , '-' );
+                }
+                return string;
+            },
+        },
+        timeout: function( callback , delay ) {
+            callback = Is.function( callback ) ? callback : function() {};
+            if ( !Is.number( delay ) ) delay = 0;
+            if ( window.scheduler ) scheduler.postTask( callback , { delay : delay } ); else return window.setTimeout( callback , delay );
+        },
+        urlify: function( text , target = '_blank' ) {
+            return text.replace( /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig , ( url ) => {
+                return `<a href="${url}" target="${target}">${url}</a>`;
+            });
         },
     });
 
