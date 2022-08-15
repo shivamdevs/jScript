@@ -582,7 +582,7 @@
             after : function( ...nodes ) {
                 nodes.forEach(( node ) => {
                     this.each(function() {
-                        if ( Is.jScript( node ) || Is.jQuery( node ) ) {
+                        if ( Is.jScript( node ) ) {
                             const temp = this;
                             node.each(function() {
                                 temp.parentNode.insertBefore( this , temp.nextSibling );
@@ -598,7 +598,7 @@
                 const root = this;
                 nodes.forEach(( node ) => {
                     this.each(function() {
-                        if ( Is.jScript( node ) || Is.jQuery( node ) ) {
+                        if ( Is.jScript( node ) ) {
                             const temp = this;
                             node.each(function() {
                                 temp.appendChild( this );
@@ -623,7 +623,7 @@
             before : function( ...nodes ) {
                 nodes.forEach(( node ) => {
                     this.each(function() {
-                        if ( Is.jScript( node ) || Is.jQuery( node ) ) {
+                        if ( Is.jScript( node ) ) {
                             const temp = this;
                             node.each(function() {
                                 temp.parentNode.insertBefore( this , temp );
@@ -652,7 +652,7 @@
             prepend : function( ...nodes ) {
                 nodes.forEach(( node ) => {
                     this.each(function() {
-                        if ( Is.jScript( node ) || Is.jQuery( node ) ) {
+                        if ( Is.jScript( node ) ) {
                             const temp = this;
                             node.each(function() {
                                 temp.prepend( this );
@@ -980,7 +980,6 @@
                 }
                 return this;
             },
-
             auxclick : function( callback , capture ) {
                 if ( Is.function( callback ) ) {
                     this.bind( 'auxclick' , callback , capture );
@@ -1163,7 +1162,7 @@
             },
             removeOverflow : function() {
                 this.each(function() {
-                    const array = Js.arrObj.objInArr( Js.overflowObserver , 'element' , this );
+                    const array = Js.object.inArray( Js.overflowObserver , 'element' , this );
                     if ( Is.object( array ) ) Js.overflowObserver.splice( array.index , 1 );
                 });
                 return this;
@@ -1214,7 +1213,52 @@
 
     // Add custom functions to jScript function
     Js.addExtension( Js , {
-
+        array : {
+            compare : function( arr1 , arr2 ) {
+                if ( !Array.isArray( arr1 ) || !Array.isArray( arr2 ) || arr1.length !== arr2.length ) return false;
+                const temp1 = arr1.concat().sort();
+                const temp2 = arr2.concat().sort();
+                for (let i = 0; i < temp1.length; i++) if ( temp1[ i ] !== temp2[ i ] ) return false;
+                return true;
+            },
+        },
+        ce : function( selector , ...children ) {
+            const element = Js();
+            const query = Js.cssquery( selector );
+            if ( query && query.element ) {
+                element = Js( window.document.createElement( query.element ) );
+                if ( query.id ) element.attr( 'id' , query.id );
+                if ( query.class ) element.addClass( query.class );
+                if ( query.attr ) element.attr( query.attr );
+                element.append( children );
+            };
+            return element;
+        },
+        cm : function( selector , appendTo ) {
+            if ( !selector ) return null;
+            const match = Js( selector );
+            if ( !match.length ) return Js.ce( selector ).appendTo( appendTo );
+            return match;
+        },
+        object : {
+            formData : function( data , value ) {
+                const result = {};
+                if ( Is.object( data ) ) {
+                  for (let key in data) {
+                    if (data.hasOwnProperty(key)) {
+                      result[ key ] = data[ key ] ?? null;
+                    }
+                  }
+                } else if ( Is.string( data ) ) {
+                  result[ data ] = value ?? null;
+                }
+                return result;
+            },
+            inArray : function( array , key , value ) {
+                for (let i = 0; i < array.length; i++) if ( array[ i ][ key ] === value ) return { item : array[ i ] , index : i };
+                return null;
+            },
+        },
     });
 
 
@@ -1227,6 +1271,24 @@
         };
         struct();
         Js( window ).bind( 'resize' ,struct );
+    }());
+
+    // Add overflow observer for $(...).overflow(...);
+    const overflowObserver = [];
+    (function() {
+        const speed = 300;
+        (function overflow() {
+            overflowObserver.forEach(( item , i ) => {
+                const start = item.flowstart;
+                const atend = item.flowend;
+                if ( item.element.scrollWidth > item.element.clientWidth ) {
+                    if ( Is.function( start ) ) start.call( item.element , item.selector , item.element );
+                } else {
+                    if ( Is.function( atend ) ) atend.call( item.element , item.selector , item.element );
+                }
+            });
+            Js.timeout( overflow , speed );
+        }());
     }());
 
 
