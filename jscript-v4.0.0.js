@@ -1,5 +1,5 @@
 // Projset :: jScript
-// Version :: 4.0.0 - MIT License
+// Version :: 4.0.1 - MIT License
 
 (function( baseName ) {
     'use strict';
