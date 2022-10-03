@@ -1096,7 +1096,7 @@
     };
     Js.ce = function( selector , ...children ) {
         const element = Js();
-        const query = Js.cssquery( selector );
+        const query = Js.cssQuery( selector );
         if ( !query || !query.element ) return element;
         element = Js( window.document.createElement( query.element ) );
         if ( query.id ) element.attr( 'id' , query.id );
